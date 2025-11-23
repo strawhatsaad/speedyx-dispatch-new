@@ -4,7 +4,10 @@ import "./globals.css";
 import CustomCursor from "@/components/CustomCursor";
 import LiquidFilters from "@/components/LiquidFilters";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap", // Optimize font loading
+});
 
 export const metadata: Metadata = {
   title: "SpeedyX Dispatch",
@@ -18,6 +21,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Preconnect to improve performance */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className={`${inter.className} bg-white antialiased`}>
         <LiquidFilters />
         <CustomCursor />

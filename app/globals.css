@@ -14,16 +14,14 @@ body {
   overflow-x: hidden;
 }
 
-/* THE SITE-WIDE BLEND FIX */
 .blend-target {
-  color: #ffffff !important;
+  /* Using mix-blend-difference allows black text to turn white if it overlaps the black images */
   mix-blend-mode: difference;
-  position: relative;
-  z-index: 50; /* Top Layer */
-  pointer-events: auto;
+  color: white;
+  /* Note: In this specific design, the text is mostly over white background, 
+     but keeping difference mode ensures high contrast if it hits a dark image */
 }
 
-/* Liquid Cursor */
 .gooey-container {
   filter: url("#goo");
   width: 100%;
@@ -32,7 +30,7 @@ body {
   top: 0;
   left: 0;
   pointer-events: none;
-  z-index: 30; /* Middle Layer */
+  z-index: 9999; /* Liquid cursor always on top */
 }
 
 .cursor-dot {
