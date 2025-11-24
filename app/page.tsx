@@ -327,6 +327,50 @@ export default function Home() {
         { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.2)" },
         1.5
       );
+
+      // FORM SECTION - Scale down video section
+      gsap.to("#video-section", {
+        scrollTrigger: {
+          trigger: "#form-section",
+          start: "top bottom",
+          end: "top top",
+          scrub: 2.5,
+        },
+        scale: 0.7,
+        y: -window.innerHeight * 0.4,
+        opacity: 0,
+      });
+
+      // Animate form elements
+      gsap.fromTo(
+        ".form-container",
+        { opacity: 0, x: -100 },
+        {
+          opacity: 1,
+          x: 0,
+          scrollTrigger: {
+            trigger: "#form-section",
+            start: "top 60%",
+            end: "top 30%",
+            scrub: 2,
+          },
+        }
+      );
+
+      gsap.fromTo(
+        ".torus-container",
+        { opacity: 0, x: 100 },
+        {
+          opacity: 1,
+          x: 0,
+          scrollTrigger: {
+            trigger: "#form-section",
+            start: "top 60%",
+            end: "top 30%",
+            scrub: 2,
+          },
+        }
+      );
     },
     { scope: containerRef, dependencies: [] }
   );
@@ -497,6 +541,170 @@ export default function Home() {
           </div>
         </section>
       </div>
+
+      {/* FORM SECTION */}
+      <section
+        id="form-section"
+        className="min-h-screen w-full relative bg-white py-20"
+      >
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left Side - Form */}
+          <div className="form-container">
+            <h2 className="text-5xl md:text-6xl font-black mb-4 text-black">
+              Get Started Today
+            </h2>
+            <p className="text-xl text-black opacity-70 mb-8">
+              Fill out the form below and we'll get you on the road to success
+            </p>
+
+            <form
+              name="carrier-contact"
+              method="POST"
+              data-netlify="true"
+              netlify-honeypot="bot-field"
+              className="space-y-6"
+            >
+              {/* Netlify form detection */}
+              <input type="hidden" name="form-name" value="carrier-contact" />
+
+              {/* Honeypot field */}
+              <p className="hidden">
+                <label>
+                  Don't fill this out if you're human:{" "}
+                  <input name="bot-field" />
+                </label>
+              </p>
+
+              {/* Carrier Name */}
+              <div>
+                <label
+                  htmlFor="carrier-name"
+                  className="block text-sm font-bold text-black mb-2"
+                >
+                  Carrier Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="carrier-name"
+                  name="carrier-name"
+                  required
+                  className="w-full px-4 py-3 border-2 border-black rounded-lg focus:outline-none focus:border-gray-600 transition-colors"
+                  placeholder="Your Company Name"
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-bold text-black mb-2"
+                >
+                  Email Address <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  className="w-full px-4 py-3 border-2 border-black rounded-lg focus:outline-none focus:border-gray-600 transition-colors"
+                  placeholder="your@email.com"
+                />
+              </div>
+
+              {/* MC Number */}
+              <div>
+                <label
+                  htmlFor="mc-number"
+                  className="block text-sm font-bold text-black mb-2"
+                >
+                  MC Number <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="mc-number"
+                  name="mc-number"
+                  required
+                  className="w-full px-4 py-3 border-2 border-black rounded-lg focus:outline-none focus:border-gray-600 transition-colors"
+                  placeholder="MC-123456"
+                />
+              </div>
+
+              {/* MC Authority Letter */}
+              <div>
+                <label
+                  htmlFor="mc-authority"
+                  className="block text-sm font-bold text-black mb-2"
+                >
+                  MC Authority Letter
+                </label>
+                <input
+                  type="file"
+                  id="mc-authority"
+                  name="mc-authority"
+                  accept=".pdf,.doc,.docx"
+                  className="w-full px-4 py-3 border-2 border-black rounded-lg focus:outline-none focus:border-gray-600 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-black file:text-white file:font-bold hover:file:bg-gray-800 cursor-pointer"
+                />
+              </div>
+
+              {/* W-9 Form */}
+              <div>
+                <label
+                  htmlFor="w9-form"
+                  className="block text-sm font-bold text-black mb-2"
+                >
+                  W-9 Form
+                </label>
+                <input
+                  type="file"
+                  id="w9-form"
+                  name="w9-form"
+                  accept=".pdf,.doc,.docx"
+                  className="w-full px-4 py-3 border-2 border-black rounded-lg focus:outline-none focus:border-gray-600 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-black file:text-white file:font-bold hover:file:bg-gray-800 cursor-pointer"
+                />
+              </div>
+
+              {/* Insurance Documents */}
+              <div>
+                <label
+                  htmlFor="insurance-docs"
+                  className="block text-sm font-bold text-black mb-2"
+                >
+                  Insurance Documents
+                </label>
+                <input
+                  type="file"
+                  id="insurance-docs"
+                  name="insurance-docs"
+                  accept=".pdf,.doc,.docx"
+                  className="w-full px-4 py-3 border-2 border-black rounded-lg focus:outline-none focus:border-gray-600 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-black file:text-white file:font-bold hover:file:bg-gray-800 cursor-pointer"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="w-full bg-black text-white font-bold text-lg py-4 rounded-lg hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105"
+              >
+                Submit Application
+              </button>
+            </form>
+          </div>
+
+          {/* Right Side - Torus Knot */}
+          <div className="torus-container hidden lg:flex items-center justify-center h-[600px] relative">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <h3 className="text-3xl font-black text-black mb-2">
+                  Interactive 3D
+                </h3>
+                <p className="text-lg text-black opacity-70">
+                  Move your cursor to interact
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

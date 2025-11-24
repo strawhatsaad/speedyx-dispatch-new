@@ -72,6 +72,24 @@ export default function Experience() {
     });
 
     featuresTl.set(mesh.material, { opacity: 0 });
+
+    // FORM SECTION: Show torus again
+    const formTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: "#form-section",
+        start: "top bottom",
+        end: "top center",
+        scrub: 2,
+      },
+    });
+
+    formTl.to(mesh.material, { opacity: 1, duration: 0.5 });
+    formTl.to(mesh.scale, { x: 3, y: 3, z: 3, duration: 0.5 }, 0);
+    formTl.to(
+      mesh.position,
+      { x: viewport.width * 0.25, y: 0, z: 0, duration: 0.5 },
+      0
+    );
   }, [viewport]);
 
   useFrame((state) => {
