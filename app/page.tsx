@@ -412,8 +412,9 @@ export default function Home() {
     try {
       await fetch("/", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams(formData as any).toString(),
+        // CRITICAL FIX: Do not set 'Content-Type'.
+        // The browser sets it automatically to 'multipart/form-data' when body is FormData.
+        body: formData,
       });
       setFormStatus("success");
       form.reset();
