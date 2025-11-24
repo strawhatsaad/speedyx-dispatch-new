@@ -412,8 +412,8 @@ export default function Home() {
     try {
       await fetch("/", {
         method: "POST",
-        // CRITICAL FIX: Do not set 'Content-Type'.
-        // The browser sets it automatically to 'multipart/form-data' when body is FormData.
+        // 1. DO NOT set Content-Type header (the browser sets it automatically for files)
+        // 2. Pass 'formData' directly, NOT 'new URLSearchParams(...)'
         body: formData,
       });
       setFormStatus("success");
