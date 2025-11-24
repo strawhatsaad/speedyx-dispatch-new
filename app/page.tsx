@@ -9,6 +9,7 @@ import Experience from "@/components/Experience";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// ... (Keep your 'features' array exactly as it is) ...
 const features = [
   {
     id: 1,
@@ -68,8 +69,14 @@ export default function Home() {
   const shortTextRefs = useRef<(HTMLDivElement | null)[]>([]);
   const detailRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  // Form States
+  const [formStatus, setFormStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
+
   useGSAP(
     () => {
+      // ... (Keep all your existing GSAP animations exactly as they are) ...
       // HERO
       gsap
         .timeline({
@@ -394,8 +401,31 @@ export default function Home() {
     });
   };
 
+  // Handle Form Submission
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setFormStatus("submitting");
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(formData as any).toString(),
+      });
+      setFormStatus("success");
+      form.reset();
+    } catch (error) {
+      console.error("Submission error:", error);
+      setFormStatus("error");
+    }
+  };
+
   return (
     <main ref={containerRef} className="w-full relative bg-white">
+      {/* ... (Fixed Background, Hero, Features, Video Sections remain unchanged) ... */}
       <div className="fixed top-0 left-0 w-full h-screen z-0 pointer-events-none">
         <Canvas
           gl={{
@@ -557,17 +587,15 @@ export default function Home() {
               Fill out the form below and we'll get you on the road to success
             </p>
 
+            {/* Updated Form: No data-netlify attribute, uses onSubmit */}
             <form
               name="carrier-contact"
-              method="POST"
-              data-netlify="true"
-              netlify-honeypot="bot-field"
+              onSubmit={handleSubmit}
               className="space-y-6"
             >
-              {/* Netlify form detection */}
               <input type="hidden" name="form-name" value="carrier-contact" />
 
-              {/* Honeypot field */}
+              {/* Hidden Honeypot field - manually handled or ignored by React */}
               <p className="hidden">
                 <label>
                   Don't fill this out if you're human:{" "}
@@ -683,10 +711,24 @@ export default function Home() {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full bg-black text-white font-bold text-lg py-4 rounded-lg hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105"
+                disabled={formStatus === "submitting"}
+                className="w-full bg-black text-white font-bold text-lg py-4 rounded-lg hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
               >
-                Submit Application
+                {formStatus === "submitting"
+                  ? "Sending..."
+                  : "Submit Application"}
               </button>
+
+              {formStatus === "success" && (
+                <p className="text-green-600 font-bold mt-4">
+                  Success! We will contact you shortly.
+                </p>
+              )}
+              {formStatus === "error" && (
+                <p className="text-red-600 font-bold mt-4">
+                  Something went wrong. Please try again.
+                </p>
+              )}
             </form>
           </div>
 
