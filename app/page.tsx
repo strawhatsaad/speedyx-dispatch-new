@@ -70,224 +70,220 @@ export default function Home() {
 
   useGSAP(
     () => {
-      // HERO: Torus scales up and fades out
-      const heroTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: "#hero-section",
-          start: "top top",
-          end: "+=100%",
-          scrub: 1,
-        },
-      });
-      heroTl
+      // HERO
+      gsap
+        .timeline({
+          scrollTrigger: {
+            trigger: "#hero-section",
+            start: "top top",
+            end: "bottom top",
+            scrub: 2,
+          },
+        })
         .to(".hero-left", { x: -300, opacity: 0 }, 0)
         .to(".hero-right", { x: 300, opacity: 0 }, 0);
 
-      // FEATURE SECTION PINNING
+      // PIN THE FEATURE SECTION
       ScrollTrigger.create({
         trigger: featureSectionRef.current,
         start: "top top",
-        end: "+=1200%", // Long scroll for all animation stages
+        end: "+=18000",
         pin: true,
-        scrub: 1,
-        invalidateOnRefresh: true,
+        scrub: 2,
       });
 
-      // STAGE 1: Images rise from bottom (vertical line)
-      const riseTl = gsap.timeline({
+      // MASTER TIMELINE
+      const masterTl = gsap.timeline({
         scrollTrigger: {
           trigger: featureSectionRef.current,
           start: "top top",
-          end: "+=200%",
-          scrub: 1,
+          end: "+=18000",
+          scrub: 2,
         },
       });
 
+      // STAGE 1: RISE
       imageRefs.current.forEach((img, i) => {
-        riseTl.fromTo(
-          img,
-          { y: window.innerHeight + 200, x: 0 },
-          {
-            y: window.innerHeight / 2 - 100 - i * 120,
-            x: 0,
-            duration: 1,
-            ease: "power2.out",
-          },
-          i * 0.15
-        );
+        if (img) {
+          masterTl.fromTo(
+            img,
+            {
+              y: window.innerHeight,
+              x: 0,
+              scale: 1,
+              opacity: 1,
+            },
+            {
+              y: window.innerHeight / 2 - 200 - i * 100,
+              x: 0,
+              duration: 1,
+            },
+            i * 0.1
+          );
+        }
       });
 
-      // STAGE 2: Snap to horizontal line
-      const snapTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: featureSectionRef.current,
-          start: "top+=200% top",
-          end: "+=150%",
-          scrub: 1,
-        },
-      });
+      masterTl.to({}, { duration: 0.5 });
 
+      // STAGE 2: SNAP HORIZONTAL
       imageRefs.current.forEach((img, i) => {
-        const targetX = (i - 2.5) * 180; // Center around middle
-        snapTl.to(
-          img,
-          {
-            x: targetX,
-            y: -100,
-            scale: 1,
-            duration: 0.5,
-            ease: "back.out(1.7)",
-          },
-          i * 0.1
-        );
+        if (img) {
+          const centerX = window.innerWidth / 2;
+          const spacing = 260;
+          const startX =
+            centerX - (features.length * spacing) / 2 + spacing / 2;
+          const targetX = startX + i * spacing - centerX;
+
+          masterTl.to(
+            img,
+            {
+              x: targetX,
+              y: -80,
+              scale: 1,
+              duration: 0.5,
+              ease: "back.out(1.2)",
+            },
+            2 + i * 0.05
+          );
+        }
       });
 
-      // STAGE 3: Show short text for each
-      const textRevealTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: featureSectionRef.current,
-          start: "top+=350% top",
-          end: "+=150%",
-          scrub: 1,
-        },
-      });
+      masterTl.to({}, { duration: 0.3 });
 
+      // STAGE 3: TEXT REVEAL
       shortTextRefs.current.forEach((text, i) => {
-        textRevealTl.fromTo(
-          text,
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.3 },
-          i * 0.1
-        );
+        if (text) {
+          const centerX = window.innerWidth / 2;
+          const spacing = 260;
+          const startX =
+            centerX - (features.length * spacing) / 2 + spacing / 2;
+          const targetX = startX + i * spacing;
+
+          // Position text below its image
+          masterTl.set(
+            text,
+            {
+              left: targetX,
+              top: "50%",
+              x: 0,
+              y: 100,
+            },
+            3
+          );
+
+          masterTl.fromTo(
+            text,
+            { opacity: 0 },
+            { opacity: 1, duration: 0.2 },
+            3 + i * 0.08
+          );
+        }
       });
 
-      // STAGE 4: First image to center, others to thumbnail strip
-      const centerFirstTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: featureSectionRef.current,
-          start: "top+=500% top",
-          end: "+=100%",
-          scrub: 1,
-        },
-      });
+      masterTl.to({}, { duration: 0.5 });
 
-      // Move first to center
-      centerFirstTl.to(imageRefs.current[0], {
-        x: 0,
-        y: 0,
-        scale: 1.5,
-        duration: 1,
-      });
-
-      // Move others to left thumbnail strip
-      imageRefs.current.slice(1).forEach((img, i) => {
-        centerFirstTl.to(
-          img,
+      // STAGE 4: CAROUSEL LAYOUT
+      if (imageRefs.current[0]) {
+        masterTl.to(
+          imageRefs.current[0],
           {
-            x: -window.innerWidth * 0.4,
-            y: -200 + i * 120,
-            scale: 0.5,
-            duration: 1,
+            x: 0,
+            y: -100,
+            scale: 2,
+            duration: 0.8,
           },
-          0
+          4
         );
+      }
+
+      imageRefs.current.slice(1).forEach((img, i) => {
+        if (img) {
+          masterTl.to(
+            img,
+            {
+              x: -window.innerWidth * 0.42,
+              y: -250 + i * 140,
+              scale: 0.6,
+              duration: 0.8,
+            },
+            4
+          );
+        }
       });
 
-      // Hide short text
       shortTextRefs.current.forEach((text) => {
-        centerFirstTl.to(text, { opacity: 0, duration: 0.5 }, 0);
+        if (text) {
+          masterTl.to(text, { opacity: 0, duration: 0.3 }, 4);
+        }
       });
 
-      // STAGE 5-10: Individual feature details (carousel through all 6)
-      features.forEach((feature, featureIndex) => {
-        const startOffset = 600 + featureIndex * 100;
+      masterTl.to({}, { duration: 0.3 });
 
-        // Show detail for current feature
-        const detailTl = gsap.timeline({
-          scrollTrigger: {
-            trigger: featureSectionRef.current,
-            start: `top+=${startOffset}% top`,
-            end: "+=100%",
-            scrub: 1,
-            onEnter: () => setActiveFeature(featureIndex),
-            onEnterBack: () => setActiveFeature(featureIndex),
-          },
-        });
+      // STAGE 5+: CAROUSEL
+      features.forEach((feature, idx) => {
+        const baseTime = 5 + idx * 0.5;
 
-        // Animate in detail text
-        if (detailRefs.current[featureIndex]) {
-          detailTl.fromTo(
-            detailRefs.current[featureIndex],
+        if (detailRefs.current[idx]) {
+          masterTl.fromTo(
+            detailRefs.current[idx],
             { opacity: 0, y: 50 },
-            { opacity: 1, y: 0, duration: 0.5 }
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.3,
+              onStart: () => setActiveFeature(idx),
+            },
+            baseTime
           );
         }
 
-        // Transition to next (if not last)
-        if (featureIndex < features.length - 1) {
-          const transitionTl = gsap.timeline({
-            scrollTrigger: {
-              trigger: featureSectionRef.current,
-              start: `top+=${startOffset + 80}% top`,
-              end: "+=20%",
-              scrub: 1,
-            },
-          });
+        if (idx < features.length - 1) {
+          const transitionTime = baseTime + 0.35;
 
-          // Current image scales down and moves to thumbnails
-          transitionTl
-            .to(imageRefs.current[featureIndex], {
-              scale: 0.5,
-              x: -window.innerWidth * 0.4,
-              y: -200 + featureIndex * 120,
-              duration: 0.5,
-            })
-            .to(
-              detailRefs.current[featureIndex],
-              { opacity: 0, duration: 0.3 },
-              0
+          if (detailRefs.current[idx]) {
+            masterTl.to(
+              detailRefs.current[idx],
+              {
+                opacity: 0,
+                duration: 0.2,
+              },
+              transitionTime
             );
+          }
 
-          // Next image scales up to center
-          transitionTl.to(
-            imageRefs.current[featureIndex + 1],
-            {
-              scale: 1.5,
-              x: 0,
-              y: 0,
-              duration: 0.5,
-            },
-            0.2
-          );
+          if (imageRefs.current[idx]) {
+            masterTl.to(
+              imageRefs.current[idx],
+              {
+                x: -window.innerWidth * 0.42,
+                y: -250 + idx * 140,
+                scale: 0.6,
+                duration: 0.3,
+              },
+              transitionTime
+            );
+          }
+
+          if (imageRefs.current[idx + 1]) {
+            masterTl.to(
+              imageRefs.current[idx + 1],
+              {
+                x: 0,
+                y: -100,
+                scale: 2,
+                duration: 0.3,
+              },
+              transitionTime
+            );
+          }
         }
       });
     },
-    { scope: containerRef }
+    { scope: containerRef, dependencies: [] }
   );
-
-  // HOVER HELPERS for hero text
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const { offsetX, offsetY, target } = e.nativeEvent;
-    // @ts-ignore
-    const { clientWidth, clientHeight } = target;
-    const x = (offsetX - clientWidth / 2) / 5;
-    const y = (offsetY - clientHeight / 2) / 5;
-    gsap.to(target, { x, y, scale: 1.1, duration: 0.4, ease: "power3.out" });
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent) => {
-    gsap.to(e.target, {
-      x: 0,
-      y: 0,
-      scale: 1,
-      duration: 0.7,
-      ease: "elastic.out(1, 0.5)",
-    });
-  };
 
   return (
     <main ref={containerRef} className="w-full relative bg-white">
-      {/* FIXED BACKGROUND: Canvas with Torus */}
       <div className="fixed top-0 left-0 w-full h-screen z-0 pointer-events-none">
         <Canvas
           gl={{
@@ -304,114 +300,85 @@ export default function Home() {
         </Canvas>
       </div>
 
-      {/* HERO SECTION */}
       <section
         id="hero-section"
-        className="h-screen w-full flex flex-col items-center justify-center relative pointer-events-none"
+        className="h-screen w-full flex flex-col items-center justify-center relative"
       >
         <div className="flex gap-4 md:gap-8 text-[12vw] font-black leading-none tracking-tighter select-none pointer-events-auto">
-          <h1
-            className="hero-left blend-target cursor-pointer will-change-transform"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-          >
-            SPEEDY
-          </h1>
-          <h1
-            className="hero-right blend-target cursor-pointer will-change-transform"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-          >
-            X
-          </h1>
+          <h1 className="hero-left blend-target cursor-pointer">SPEEDY</h1>
+          <h1 className="hero-right blend-target cursor-pointer">X</h1>
         </div>
         <p className="blend-target mt-10 text-xl uppercase font-bold tracking-[0.5em]">
           Building Tomorrow
         </p>
       </section>
 
-      {/* FEATURES SECTION */}
-      <section
-        id="feature-section"
-        ref={featureSectionRef}
-        className="h-screen w-full relative"
-        style={{
-          background: "transparent",
-          isolation: "auto",
-        }}
-      >
-        {/* Feature Images */}
-        {features.map((feature, index) => (
-          <div key={`img-${feature.id}`}>
-            {/* Image Box */}
-            <div
-              ref={(el) => {
-                imageRefs.current[index] = el;
-              }}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[150px] h-[150px] rounded-2xl shadow-2xl cursor-pointer transition-shadow hover:shadow-3xl"
-              style={{
-                backgroundColor: feature.color,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <div className="w-full h-full flex items-center justify-center text-white font-black text-2xl">
-                {feature.id}
+      {/* FEATURES */}
+      <div style={{ height: "18000px" }}>
+        <section
+          id="feature-section"
+          ref={featureSectionRef}
+          className="h-screen w-full relative overflow-hidden"
+        >
+          {features.map((feature, index) => (
+            <div key={feature.id}>
+              <div
+                ref={(el) => {
+                  imageRefs.current[index] = el;
+                }}
+                className="absolute left-1/2 top-1/2 w-[140px] h-[140px] rounded-2xl shadow-2xl"
+                style={{
+                  backgroundColor: feature.color,
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                <div className="w-full h-full flex items-center justify-center text-white font-black text-3xl">
+                  {feature.id}
+                </div>
+              </div>
+
+              <div
+                ref={(el) => {
+                  shortTextRefs.current[index] = el;
+                }}
+                className="absolute opacity-0 pointer-events-none -translate-x-1/2"
+                style={{ width: "240px" }}
+              >
+                <h3 className="text-black text-base font-bold text-center whitespace-nowrap">
+                  {feature.name}
+                </h3>
+                <p className="text-black text-sm text-center opacity-80">
+                  {feature.shortDesc}
+                </p>
+              </div>
+
+              <div
+                ref={(el) => {
+                  detailRefs.current[index] = el;
+                }}
+                className="absolute left-1/2 top-1/2 opacity-0 max-w-xl text-center pointer-events-none"
+                style={{
+                  transform: "translate(-50%, 180px)",
+                }}
+              >
+                <h2 className="text-5xl md:text-7xl font-black mb-4 text-black">
+                  {feature.name}
+                </h2>
+                <p className="text-xl md:text-2xl font-bold mb-6 text-black opacity-70">
+                  {feature.shortDesc}
+                </p>
+                <p className="text-base md:text-lg leading-relaxed text-black px-4">
+                  {feature.fullDesc}
+                </p>
+                <div className="mt-8 text-sm font-mono opacity-50 text-black">
+                  {String(index + 1).padStart(2, "0")} /{" "}
+                  {String(features.length).padStart(2, "0")}
+                </div>
               </div>
             </div>
-
-            {/* Short Description (horizontal line stage) */}
-            <div
-              ref={(el) => {
-                shortTextRefs.current[index] = el;
-              }}
-              className="absolute opacity-0"
-              style={{
-                left: "50%",
-                top: "50%",
-                transform: `translate(calc(-50% + ${
-                  (index - 2.5) * 180
-                }px), 80px)`,
-              }}
-            >
-              <h3 className="text-white text-lg font-bold text-center whitespace-nowrap blend-target">
-                {feature.name}
-              </h3>
-              <p className="text-white text-sm text-center opacity-80 blend-target">
-                {feature.shortDesc}
-              </p>
-            </div>
-
-            {/* Full Detail (center stage) */}
-            <div
-              ref={(el) => {
-                detailRefs.current[index] = el;
-              }}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 opacity-0 max-w-xl text-center"
-              style={{
-                transform: "translate(-50%, 150px)",
-              }}
-            >
-              <h2 className="text-6xl font-black mb-4 blend-target">
-                {feature.name}
-              </h2>
-              <p className="text-2xl font-bold mb-6 blend-target opacity-70">
-                {feature.shortDesc}
-              </p>
-              <p className="text-lg leading-relaxed blend-target">
-                {feature.fullDesc}
-              </p>
-              <div className="mt-8 text-sm font-mono opacity-50 blend-target">
-                {String(index + 1).padStart(2, "0")} /{" "}
-                {String(features.length).padStart(2, "0")}
-              </div>
-            </div>
-          </div>
-        ))}
-      </section>
-
-      {/* Spacer for scroll */}
-      <div className="h-[1200vh] w-full"></div>
-      <div className="h-[50vh] w-full"></div>
+          ))}
+        </section>
+      </div>
     </main>
   );
 }

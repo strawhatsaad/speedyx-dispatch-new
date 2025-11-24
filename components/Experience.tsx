@@ -17,23 +17,19 @@ export default function Experience() {
     if (!meshRef.current) return;
     const mesh = meshRef.current;
 
-    // HERO SECTION: Scale up and fade out
     const heroTl = gsap.timeline({
       scrollTrigger: {
         trigger: "#hero-section",
         start: "top top",
-        end: "+=100%",
-        scrub: 1,
-        invalidateOnRefresh: true,
+        end: "bottom top",
+        scrub: 2,
       },
     });
 
-    // Start small at center
     heroTl.set(mesh.scale, { x: 1, y: 1, z: 1 });
     heroTl.set(mesh.position, { x: 0, y: 0, z: 0 });
     heroTl.set(mesh.material, { opacity: 1, transparent: true });
 
-    // Scale up massively as user scrolls through hero
     heroTl.to(
       mesh.scale,
       {
@@ -46,7 +42,6 @@ export default function Experience() {
       0
     );
 
-    // Fade out at the end
     heroTl.to(
       mesh.material,
       {
@@ -56,7 +51,6 @@ export default function Experience() {
       0.7
     );
 
-    // Rotate while scaling
     heroTl.to(
       mesh.rotation,
       {
@@ -68,24 +62,20 @@ export default function Experience() {
       0
     );
 
-    // FEATURES SECTION: Keep invisible
     const featuresTl = gsap.timeline({
       scrollTrigger: {
         trigger: "#feature-section",
         start: "top top",
-        end: "+=1200%",
-        scrub: 1,
-        invalidateOnRefresh: true,
+        end: "+=18000",
+        scrub: 2,
       },
     });
 
-    // Stay invisible throughout features
     featuresTl.set(mesh.material, { opacity: 0 });
   }, [viewport]);
 
   useFrame((state) => {
     if (!meshRef.current) return;
-    // Subtle mouse tracking
     const y = (state.pointer.y * viewport.height) / 2;
     const x = (state.pointer.x * viewport.width) / 2;
     meshRef.current.rotation.x = THREE.MathUtils.lerp(
