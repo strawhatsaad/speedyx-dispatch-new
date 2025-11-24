@@ -278,9 +278,77 @@ export default function Home() {
           }
         }
       });
+
+      // VIDEO SECTION ANIMATIONS
+      const videoTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: "#video-section",
+          start: "top top",
+          end: "+=3000",
+          scrub: 2.5,
+          pin: true,
+        },
+      });
+
+      // Scale down feature section to top (happens as we approach video section)
+      gsap.to("#feature-section", {
+        scrollTrigger: {
+          trigger: "#video-section",
+          start: "top bottom",
+          end: "top top",
+          scrub: 2.5,
+        },
+        scale: 0.7,
+        y: -window.innerHeight * 0.4,
+        opacity: 0,
+      });
+
+      // Wait, then slide video cards into view
+      videoTl.to({}, { duration: 0.3 }); // Pause at start
+
+      videoTl.fromTo(
+        ".video-card-bottom",
+        { bottom: "-100%" },
+        { bottom: "10%", duration: 1, ease: "power2.out" },
+        0.3
+      );
+
+      videoTl.fromTo(
+        ".video-card-top",
+        { top: "-100%" },
+        { top: "10%", duration: 1, ease: "power2.out" },
+        0.3
+      );
+
+      // Animate center text after cards are in position
+      videoTl.fromTo(
+        ".video-text",
+        { opacity: 0, scale: 0.8 },
+        { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.2)" },
+        1.5
+      );
     },
     { scope: containerRef, dependencies: [] }
   );
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const { offsetX, offsetY, target } = e.nativeEvent;
+    // @ts-ignore
+    const { clientWidth, clientHeight } = target;
+    const x = (offsetX - clientWidth / 2) / 5;
+    const y = (offsetY - clientHeight / 2) / 5;
+    gsap.to(target, { x, y, scale: 1.1, duration: 0.4, ease: "power3.out" });
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent) => {
+    gsap.to(e.target, {
+      x: 0,
+      y: 0,
+      scale: 1,
+      duration: 0.7,
+      ease: "elastic.out(1, 0.5)",
+    });
+  };
 
   return (
     <main ref={containerRef} className="w-full relative bg-white">
@@ -305,8 +373,20 @@ export default function Home() {
         className="h-screen w-full flex flex-col items-center justify-center relative"
       >
         <div className="flex gap-4 md:gap-8 text-[12vw] font-black leading-none tracking-tighter select-none pointer-events-auto">
-          <h1 className="hero-left blend-target cursor-pointer">SPEEDY</h1>
-          <h1 className="hero-right blend-target cursor-pointer">X</h1>
+          <h1
+            className="hero-left blend-target cursor-pointer will-change-transform"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
+            SPEEDY
+          </h1>
+          <h1
+            className="hero-right blend-target cursor-pointer will-change-transform"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
+            X
+          </h1>
         </div>
         <p className="blend-target mt-10 text-xl uppercase font-bold tracking-[0.5em]">
           Building Tomorrow
@@ -377,6 +457,44 @@ export default function Home() {
               </div>
             </div>
           ))}
+        </section>
+      </div>
+
+      {/* VIDEO SECTION */}
+      <div style={{ height: "3000px" }}>
+        <section
+          id="video-section"
+          className="h-screen w-full relative overflow-hidden bg-white"
+        >
+          {/* Video Card - Slides from Bottom */}
+          <div
+            className="video-card-bottom absolute left-[8%] w-[30%] h-[50%] bg-gradient-to-br from-gray-900 to-gray-700 rounded-3xl shadow-2xl"
+            style={{ bottom: "-100%" }}
+          >
+            <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
+              Video 1
+            </div>
+          </div>
+
+          {/* Video Card - Slides from Top */}
+          <div
+            className="video-card-top absolute right-[8%] w-[30%] h-[50%] bg-gradient-to-br from-gray-800 to-gray-600 rounded-3xl shadow-2xl"
+            style={{ top: "-100%" }}
+          >
+            <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
+              Video 2
+            </div>
+          </div>
+
+          {/* Center Text */}
+          <div className="video-text absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 max-w-md text-center opacity-0 px-8">
+            <h2 className="text-4xl md:text-5xl font-black leading-tight text-black mb-4">
+              We'll take the hassle right off your hands
+            </h2>
+            <p className="text-xl md:text-2xl font-bold text-black opacity-70">
+              So you can have all your attention on the road
+            </p>
+          </div>
         </section>
       </div>
     </main>

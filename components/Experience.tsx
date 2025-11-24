@@ -76,17 +76,18 @@ export default function Experience() {
 
   useFrame((state) => {
     if (!meshRef.current) return;
+    // Stronger mouse tracking for visible response
     const y = (state.pointer.y * viewport.height) / 2;
     const x = (state.pointer.x * viewport.width) / 2;
     meshRef.current.rotation.x = THREE.MathUtils.lerp(
       meshRef.current.rotation.x,
-      y * 0.02,
-      0.05
+      y * 0.15,
+      0.1
     );
     meshRef.current.rotation.y = THREE.MathUtils.lerp(
       meshRef.current.rotation.y,
-      x * 0.02,
-      0.05
+      x * 0.15,
+      0.1
     );
   });
 
