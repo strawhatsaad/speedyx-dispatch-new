@@ -1,7 +1,7 @@
 "use client";
 import React, { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { TorusKnot, Float } from "@react-three/drei";
+import { useGLTF, Float } from "@react-three/drei";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -10,8 +10,11 @@ import * as THREE from "three";
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Experience() {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const meshRef = useRef<THREE.Group>(null);
   const { viewport } = useThree();
+
+  // Load truck model
+  const { scene } = useGLTF("/truck.glb");
 
   useGSAP(() => {
     if (!meshRef.current) return;
@@ -26,36 +29,75 @@ export default function Experience() {
       },
     });
 
-    heroTl.set(mesh.scale, { x: 1, y: 1, z: 1 });
+    // Set initial truck rotation to face forward
+    heroTl.set(mesh.rotation, { x: 0, y: 0, z: 0 });
+    heroTl.set(mesh.scale, { x: 1.5, y: 1.5, z: 1.5 });
     heroTl.set(mesh.position, { x: 0, y: 0, z: 0 });
-    heroTl.set(mesh.material, { opacity: 1, transparent: true });
+
+    // Make all materials transparent
+    mesh.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const meshChild = child as THREE.Mesh;
+        if (meshChild.material) {
+          if (Array.isArray(meshChild.material)) {
+            meshChild.material.forEach((mat) => {
+              mat.transparent = true;
+              mat.opacity = 1;
+            });
+          } else {
+            meshChild.material.transparent = true;
+            meshChild.material.opacity = 1;
+          }
+        }
+      }
+    });
 
     heroTl.to(
       mesh.scale,
       {
-        x: 15,
-        y: 15,
-        z: 15,
+        x: 3,
+        y: 3,
+        z: 3,
         duration: 1,
         ease: "power2.inOut",
       },
       0
     );
 
+    // Fade out all materials
     heroTl.to(
-      mesh.material,
+      mesh,
       {
-        opacity: 0,
         duration: 0.3,
+        onUpdate: function () {
+          const progress = this.progress();
+          if (progress > 0.7) {
+            const opacity = 1 - (progress - 0.7) / 0.3;
+            mesh.traverse((child) => {
+              if ((child as THREE.Mesh).isMesh) {
+                const meshChild = child as THREE.Mesh;
+                if (meshChild.material) {
+                  if (Array.isArray(meshChild.material)) {
+                    meshChild.material.forEach((mat) => {
+                      mat.opacity = opacity;
+                    });
+                  } else {
+                    meshChild.material.opacity = opacity;
+                  }
+                }
+              }
+            });
+          }
+        },
       },
       0.7
     );
 
+    // Rotate truck horizontally (spin around Y axis)
     heroTl.to(
       mesh.rotation,
       {
-        x: Math.PI * 2,
-        y: Math.PI * 1.5,
+        y: Math.PI * 2,
         duration: 1,
         ease: "none",
       },
@@ -71,55 +113,118 @@ export default function Experience() {
       },
     });
 
-    featuresTl.set(mesh.material, { opacity: 0 });
+    // Keep truck hidden during features
+    featuresTl.set(mesh, {
+      onStart: () => {
+        mesh.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            const meshChild = child as THREE.Mesh;
+            if (meshChild.material) {
+              if (Array.isArray(meshChild.material)) {
+                meshChild.material.forEach((mat) => {
+                  mat.opacity = 0;
+                });
+              } else {
+                meshChild.material.opacity = 0;
+              }
+            }
+          }
+        });
+      },
+    });
 
-    // FORM SECTION: Show torus again
+    // Keep hidden during video section too
+    const videoTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: "#video-section",
+        start: "top top",
+        end: "+=5000",
+        scrub: 2.5,
+      },
+    });
+
+    videoTl.set(mesh, {
+      onStart: () => {
+        mesh.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            const meshChild = child as THREE.Mesh;
+            if (meshChild.material) {
+              if (Array.isArray(meshChild.material)) {
+                meshChild.material.forEach((mat) => {
+                  mat.opacity = 0;
+                });
+              } else {
+                meshChild.material.opacity = 0;
+              }
+            }
+          }
+        });
+      },
+    });
+
+    // FORM SECTION: Show truck on the right side ONLY when form is in view
     const formTl = gsap.timeline({
       scrollTrigger: {
         trigger: "#form-section",
-        start: "top bottom",
-        end: "top center",
+        start: "top center",
+        end: "top top",
         scrub: 2,
       },
     });
 
-    formTl.to(mesh.material, { opacity: 1, duration: 0.5 });
-    formTl.to(mesh.scale, { x: 3, y: 3, z: 3, duration: 0.5 }, 0);
+    // Reset rotation to face forward
+    formTl.set(mesh.rotation, { x: 0, y: 0, z: 0 }, 0);
+
+    // Position on far right side
     formTl.to(
       mesh.position,
-      { x: viewport.width * 0.25, y: 0, z: 0, duration: 0.5 },
+      { x: viewport.width * 0.35, y: 0, z: 0, duration: 1 },
       0
     );
-  }, [viewport]);
+    formTl.to(mesh.scale, { x: 3, y: 3, z: 3, duration: 1 }, 0);
+    formTl.to(
+      mesh,
+      {
+        duration: 1,
+        onUpdate: function () {
+          const opacity = this.progress();
+          mesh.traverse((child) => {
+            if ((child as THREE.Mesh).isMesh) {
+              const meshChild = child as THREE.Mesh;
+              if (meshChild.material) {
+                if (Array.isArray(meshChild.material)) {
+                  meshChild.material.forEach((mat) => {
+                    mat.opacity = opacity;
+                  });
+                } else {
+                  meshChild.material.opacity = opacity;
+                }
+              }
+            }
+          });
+        },
+      },
+      0
+    );
+  }, [viewport, scene]);
 
   useFrame((state) => {
     if (!meshRef.current) return;
-    // Stronger mouse tracking for visible response
-    const y = (state.pointer.y * viewport.height) / 2;
+    // Gentle horizontal rotation based on mouse X position
     const x = (state.pointer.x * viewport.width) / 2;
-    meshRef.current.rotation.x = THREE.MathUtils.lerp(
-      meshRef.current.rotation.x,
-      y * 0.15,
-      0.1
-    );
     meshRef.current.rotation.y = THREE.MathUtils.lerp(
       meshRef.current.rotation.y,
-      x * 0.15,
-      0.1
+      x * 0.08,
+      0.05
     );
   });
 
   return (
     <Float speed={1.5} rotationIntensity={0.1} floatIntensity={0.3}>
-      <TorusKnot ref={meshRef} args={[1, 0.35, 32, 8]}>
-        <meshStandardMaterial
-          color="#000000"
-          roughness={0.1}
-          metalness={0.6}
-          transparent={true}
-          opacity={1}
-        />
-      </TorusKnot>
+      <primitive ref={meshRef} object={scene} />
     </Float>
   );
 }
+
+// Preload the model
+useGLTF.preload("/truck.glb");

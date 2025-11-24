@@ -9,7 +9,6 @@ import Experience from "@/components/Experience";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ... (Keep your 'features' array exactly as it is) ...
 const features = [
   {
     id: 1,
@@ -69,14 +68,8 @@ export default function Home() {
   const shortTextRefs = useRef<(HTMLDivElement | null)[]>([]);
   const detailRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Form States
-  const [formStatus, setFormStatus] = useState<
-    "idle" | "submitting" | "success" | "error"
-  >("idle");
-
   useGSAP(
     () => {
-      // ... (Keep all your existing GSAP animations exactly as they are) ...
       // HERO
       gsap
         .timeline({
@@ -291,7 +284,7 @@ export default function Home() {
         scrollTrigger: {
           trigger: "#video-section",
           start: "top top",
-          end: "+=3000",
+          end: "+=5000",
           scrub: 2.5,
           pin: true,
         },
@@ -401,33 +394,12 @@ export default function Home() {
     });
   };
 
-  // Handle Form Submission
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setFormStatus("submitting");
-
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-
-    try {
-      await fetch("/", {
-        method: "POST",
-        // 1. DO NOT set Content-Type header (the browser sets it automatically for files)
-        // 2. Pass 'formData' directly, NOT 'new URLSearchParams(...)'
-        body: formData,
-      });
-      setFormStatus("success");
-      form.reset();
-    } catch (error) {
-      console.error("Submission error:", error);
-      setFormStatus("error");
-    }
-  };
-
   return (
     <main ref={containerRef} className="w-full relative bg-white">
-      {/* ... (Fixed Background, Hero, Features, Video Sections remain unchanged) ... */}
-      <div className="fixed top-0 left-0 w-full h-screen z-0 pointer-events-none">
+      <div
+        className="fixed top-0 left-0 w-full h-screen pointer-events-none"
+        style={{ zIndex: 1 }}
+      >
         <Canvas
           gl={{
             alpha: true,
@@ -536,7 +508,7 @@ export default function Home() {
       </div>
 
       {/* VIDEO SECTION */}
-      <div style={{ height: "3000px" }}>
+      <div style={{ height: "5000px" }}>
         <section
           id="video-section"
           className="h-screen w-full relative overflow-hidden bg-white"
@@ -577,10 +549,11 @@ export default function Home() {
       <section
         id="form-section"
         className="min-h-screen w-full relative bg-white py-20"
+        style={{ zIndex: 2 }}
       >
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative">
           {/* Left Side - Form */}
-          <div className="form-container">
+          <div className="form-container relative" style={{ zIndex: 3 }}>
             <h2 className="text-5xl md:text-6xl font-black mb-4 text-black">
               Get Started Today
             </h2>
@@ -588,15 +561,17 @@ export default function Home() {
               Fill out the form below and we'll get you on the road to success
             </p>
 
-            {/* Updated Form: No data-netlify attribute, uses onSubmit */}
             <form
               name="carrier-contact"
-              onSubmit={handleSubmit}
+              method="POST"
+              data-netlify="true"
+              netlify-honeypot="bot-field"
               className="space-y-6"
             >
+              {/* Netlify form detection */}
               <input type="hidden" name="form-name" value="carrier-contact" />
 
-              {/* Hidden Honeypot field - manually handled or ignored by React */}
+              {/* Honeypot field */}
               <p className="hidden">
                 <label>
                   Don't fill this out if you're human:{" "}
@@ -712,24 +687,10 @@ export default function Home() {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={formStatus === "submitting"}
-                className="w-full bg-black text-white font-bold text-lg py-4 rounded-lg hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                className="w-full bg-black text-white font-bold text-lg py-4 rounded-lg hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105"
               >
-                {formStatus === "submitting"
-                  ? "Sending..."
-                  : "Submit Application"}
+                Submit Application
               </button>
-
-              {formStatus === "success" && (
-                <p className="text-green-600 font-bold mt-4">
-                  Success! We will contact you shortly.
-                </p>
-              )}
-              {formStatus === "error" && (
-                <p className="text-red-600 font-bold mt-4">
-                  Something went wrong. Please try again.
-                </p>
-              )}
             </form>
           </div>
 
