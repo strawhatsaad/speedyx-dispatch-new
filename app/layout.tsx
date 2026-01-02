@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import CustomCursor from "@/components/CustomCursor";
-import LiquidFilters from "@/components/LiquidFilters";
 
 const inter = Inter({
   subsets: ["latin"],
-  display: "swap", // Optimize font loading
+  display: "swap",
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
-  title: "SpeedyX Dispatch",
-  description: "Premium Logistics",
+  title: "SpeedyX Dispatch - Premium Truck Dispatch Services",
+  description:
+    "Get the highest rates, fastest factoring, and 24/7 support. We handle the hassle so you can focus on the road.",
+  keywords:
+    "truck dispatch, freight dispatch, carrier services, load booking, truck factoring",
 };
 
 export default function RootLayout({
@@ -20,21 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        {/* Preconnect to improve performance */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-      </head>
-      <body className={`${inter.className} bg-white antialiased`}>
-        <LiquidFilters />
-        <CustomCursor />
-        {children}
-      </body>
+    <html lang="en" className={inter.variable}>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }

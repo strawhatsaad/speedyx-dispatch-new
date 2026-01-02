@@ -10,10 +10,16 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  cursor: none;
+  cursor: none !important;
   overflow-x: hidden;
 }
 
+/* Hide default cursor on all elements */
+* {
+  cursor: none !important;
+}
+
+/* Dynamic text color for hero */
 .blend-target {
   color: #ffffff !important;
   mix-blend-mode: difference;
@@ -23,38 +29,23 @@ body {
   isolation: auto;
 }
 
-.gooey-container {
-  filter: url("#goo");
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  z-index: 30;
-}
-
-.cursor-dot {
-  position: absolute;
-  background: #000;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  will-change: transform;
-}
-
-.will-change-transform {
-  will-change: transform;
-}
-
+/* Smooth scrolling */
 html {
   scroll-behavior: smooth;
 }
 
+/* Font smoothing */
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Canvas */
 canvas {
   display: block;
+}
+
+/* Performance optimizations */
+.will-change-transform {
+  will-change: transform;
 }
